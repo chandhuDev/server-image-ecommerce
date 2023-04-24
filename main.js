@@ -15,7 +15,8 @@ app.use(expressSession({
     cookie:{maxAge:60000}
 }))
 app.use(cors({
-    origin:'*'
+    origin:'*',
+    credentials:true
 }))
 
 app.use(passport.initialize())

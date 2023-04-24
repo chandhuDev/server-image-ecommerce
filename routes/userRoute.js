@@ -3,7 +3,7 @@ const User=require("../schema/userSchema")
 const router=express.Router()
 const passport=require("passport")
 
-const {failure,getUserInfo,logout}=require("../controllers/userController")
+const {failure,getUserInfo,logout,getUsers}=require("../controllers/userController")
 
 router.get("/google",passport.authenticate("google",["profile","email"]))
 router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/login/failure"}),(req,res) => {
@@ -17,15 +17,17 @@ router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/
       newUser.save()
         .then((user) => {
           console.log('User saved to database',user);
-          const userId=user._id.toString();
-          res.redirect(`http://localhost:3000/${userId}`);
+          const userId=user._id
+          res.cookie('userId', userId);
+          res.redirect(`http://localhost:3000`);
         })
         .catch(err => console.error(err));
 })
 
 router.route("/login/failure").get(failure)
-router.route("/getUserInfo").get(getUserInfo)
+router.route("/getUserInfo/:id").get(getUserInfo)
 router.route("/logout").get(logout)
+router.route("/getUsers").get(getUsers)
 
 
 
