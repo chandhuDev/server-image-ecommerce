@@ -3,11 +3,12 @@ const cors=require("cors")
 const passport=require("passport")
 const expressSession=require("express-session")
 const passportSetUp=require("./passport")
+const bodyParser = require('body-parser');
 const fileUpload=require("express-fileupload")
 const cloudinary = require('cloudinary').v2;
 const app=express()
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(expressSession({
     secret: 'chandhu@123',
     resave: false,

@@ -6,21 +6,22 @@ const cloudinary=require("cloudinary").v2
 
 
 exports.createPost =async (req,res,next)=>{
-  const { description,category,userId } = req.body;
-  if (!req.files || Object.keys(req.files).length === 0) {
+  
+  console.log(req.body)
+  if (!req.files) {
     return res.status(400).send('No files were uploaded.');
   }
   const resultImage=await cloudinary.uploader.upload(
     req.files.postImage.tempFilePath,
     {
-        folder:`/imageEcommerce/postImages/${category}`
+        folder:`/imageEcommerce/postImages/${req.body.category}`
     }
    )
    try {
-    const category = await Category.findOne({ category: category });
+    const category = await Category.findOne({ category: req.body.category });
     const post = await Post.create({
-      description: description,
-      userId: userId,
+      description: req.body.description,
+      userId: req.body.userId,
       categoryId: category._id,
       imageUrl: resultImage.secure_url
     });
@@ -34,29 +35,34 @@ exports.createPost =async (req,res,next)=>{
 
 
 exports.updatePost = async (req,res,next)=>{
-  const {comment,postId,like,userId}=req.body
+  console.log(req.body)
   let updatedPost;
   try {
-    const user = await User.findById(userId)
-    if(comment && like){
-        const newComment =await Comment.create({ text: comment, image: user.profileImage });
+    const user = await User.findById(req.body.userId)
+    
+    const like=req.body.like&&req.body.like
+    if(req.body.comment && like){
+        const newComment =await Comment.create({ text: req.body.comment, image: user.profileImage , name : user.username });
+        console.log(newComment)
             updatedPost = await Post.findOneAndUpdate(
-             { _id: postId },
+             { _id: req.body.postId },
              { 
-               $addToSet: { like: userId },
+               $addToSet: { like: req.body.userId },
                $push: { comment: newComment }
              },
              { new: true }
-             ).populate('comment')
+             ).populate('comment').populate('userId')
+             console.log("in comment and like",updatedPost)
     }
-    else if(like){
+    else if(req.body.like){
         updatedPost = await Post.findOneAndUpdate(
-            { _id: postId },
-            { $push: { like: userId } },
+            { _id: req.body.postId },
+            { $push: { like: req.body.userId } },
             { new: true }
-          );
+          ).populate('comment').populate('userId')
+          console.log("in  like",updatedPost)
     }
-   res.status(200).send(updatedPost)
+    res.status(200).send(updatedPost)
   } catch (err) {
     console.error(err);
     res.status(500).send('Internal server error.');
@@ -79,7 +85,7 @@ exports.allPosts =async (req,res)=>{
      .populate('userId')
      .populate('comment')
      .then(posts => {
-        res.status(200).send(posts);
+        res.status(200).json(posts);
     })
     .catch(error=>console.log(error))
 }
