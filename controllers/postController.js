@@ -6,8 +6,6 @@ const cloudinary=require("cloudinary").v2
 
 
 exports.createPost =async (req,res,next)=>{
-  
-  console.log(req.body)
   if (!req.files) {
     return res.status(400).send('No files were uploaded.');
   }
@@ -35,16 +33,13 @@ exports.createPost =async (req,res,next)=>{
 
 
 exports.updatePost = async (req,res,next)=>{
-  console.log(req.body)
   let updatedPost;
   try {
     const user = await User.findById(req.body.userId)
-    
     const like=req.body.like&&req.body.like
     if(req.body.comment && like){
         const newComment =await Comment.create({ text: req.body.comment, image: user.profileImage , name : user.username });
-        console.log(newComment)
-            updatedPost = await Post.findOneAndUpdate(
+        updatedPost = await Post.findOneAndUpdate(
              { _id: req.body.postId },
              { 
                $addToSet: { like: req.body.userId },
@@ -52,7 +47,6 @@ exports.updatePost = async (req,res,next)=>{
              },
              { new: true }
              ).populate('comment').populate('userId')
-             console.log("in comment and like",updatedPost)
     }
     else if(req.body.like){
         updatedPost = await Post.findOneAndUpdate(
@@ -60,7 +54,6 @@ exports.updatePost = async (req,res,next)=>{
             { $push: { like: req.body.userId } },
             { new: true }
           ).populate('comment').populate('userId')
-          console.log("in  like",updatedPost)
     }
     res.status(200).send(updatedPost)
   } catch (err) {

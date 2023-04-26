@@ -9,8 +9,6 @@ res.status(401).json({
 
 exports.getUserInfo=async (req,res,next)=>{
     const id = req.params.id
-    console.log("id",id)
-   // console.log("request path",req.path)
     User.findById(req.params.id)
     .then(user => {
          if (!user) {
@@ -18,7 +16,6 @@ exports.getUserInfo=async (req,res,next)=>{
          }
       console.log("in getting the userInfo,",user);
       res.status(200).send(user)
-      // Do something with the user data
     })
     .catch(err => {
         console.error(err)
