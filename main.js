@@ -6,6 +6,12 @@ const passportSetUp=require("./passport")
 const bodyParser = require('body-parser');
 const fileUpload=require("express-fileupload")
 const cloudinary = require('cloudinary').v2;
+const swaggerJsDoc=require("swagger-jsdoc")
+const swaggerUi=require("swagger-ui-express")
+const {options}=require("./utils/re-use")
+
+
+
 const app=express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -36,12 +42,14 @@ cloudinary.config({
 })
 
 
+
+
+const spacs=swaggerJsDoc(options)
+
 const userRoute=require("./routes/userRoute")
 const postRoute=require("./routes/postRoute")
-app.use((req,res,next)=>{
-    console.log("request params",req.path)
-    next()
-})
+
+app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(spacs))
 app.use("/user",userRoute)
 app.use("/post",postRoute)
 
