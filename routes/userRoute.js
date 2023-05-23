@@ -19,7 +19,7 @@ router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/
           console.log('User saved to database',user);
           const userId=user._id
           res.cookie('userId', userId);
-          res.redirect(`http://localhost:3000`);
+          res.redirect(process.env.CLIENT_URL);
         })
         .catch(err => console.error(err));
 })
