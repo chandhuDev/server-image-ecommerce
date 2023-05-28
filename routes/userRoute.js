@@ -12,16 +12,28 @@ router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/
         email: req.user._json.email,
         profileImage: req.user._json.picture,
       };
-      // Save user data to MongoDB
-      const newUser = new User(userData);
-      newUser.save()
-        .then((user) => {
-          console.log('User saved to database',user);
-          const userId=user._id
-          res.cookie('userId', userId);
+
+     User.findOne({ email: userData.email }, (err, user) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send('Error checking if user exists')
+        } else if (!user) {
+          // Save user data to MongoDB
+          const newUser = new User(userData);
+          newUser.save()
+          .then((user) => {
+            console.log('User saved to database',user._id);
+            res.cookie('userId', user._id);
+            res.redirect(process.env.CLIENT_URL);
+          })
+          .catch(err => console.error(err));
+        } else {
+          console.log('User',user._id);
+          res.cookie('userId', user._id);
           res.redirect(process.env.CLIENT_URL);
-        })
-        .catch(err => console.error(err));
+        }
+      });
+      
 })
 
 router.route("/login/failure").get(failure)
