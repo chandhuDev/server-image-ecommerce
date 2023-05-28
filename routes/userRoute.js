@@ -13,7 +13,7 @@ router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/
         profileImage: req.user._json.picture,
       };
 
-     User.findOne({ email: userData.email }, (err, user) => {
+   User.findOne({ email: userData.email }, (err, user) => {
         if (err) {
           console.error(err);
           res.status(500).send('Error checking if user exists')
@@ -32,8 +32,7 @@ router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/
           res.cookie('userId', user._id);
           res.redirect(process.env.CLIENT_URL);
         }
-      });
-      
+      })
 })
 
 router.route("/login/failure").get(failure)
