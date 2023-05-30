@@ -3,7 +3,7 @@ const User=require("../schema/userSchema")
 const router=express.Router()
 const passport=require("passport")
 
-const {failure,getUserInfo,logout,getUsers}=require("../controllers/userController")
+const {failure,getUserInfo,getUsers}=require("../controllers/userController")
 
 router.get("/google",passport.authenticate("google",["profile","email"]))
 router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/login/failure"}),async(req,res) => {
@@ -15,17 +15,26 @@ router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/
       const user = await User.findOne({ email: userData.email }).exec()
       try{
         if(user){
-          console.log('User',user._id);
-          res.cookie('userId', user._id);
+          console.log('User 1',user._id);
+          res.cookie('userId', user._id, { 
+            domain: '.com',
+            path: '/',
+            httpOnly: true 
+          })
           res.redirect(process.env.CLIENT_URL);
+          
         }
         else{
           // Save user data to MongoDB
           const newUser = new User(userData);
           newUser.save()
           .then((user) => {
-            console.log('User saved to database',user._id);
-            res.cookie('userId', user._id);
+            console.log('new user',user._id);
+            res.cookie('userId', user._id, { 
+              domain: '.com',
+              path: '/',
+              httpOnly: true 
+            })
             res.redirect(process.env.CLIENT_URL);
           })
           .catch(err => console.error(err));
@@ -39,7 +48,6 @@ router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/
 
 router.route("/login/failure").get(failure)
 router.route("/getUserInfo/:id").get(getUserInfo)
-router.route("/logout").get(logout)
 router.route("/getUsers").get(getUsers)
 
 

@@ -34,7 +34,3 @@ exports.getUsers=async (req,res)=>{
     })
 }
 
-exports.logout=async (req,res,next)=>{
-    req.logout()
-    res.redirect(process.env.CLIENT_URL)
-}
