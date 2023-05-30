@@ -16,11 +16,7 @@ router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/
       try{
         if(user){
           console.log('User 1',user._id);
-          res.cookie('userId', user._id, { 
-            domain: '.com',
-            path: '/',
-            httpOnly: true 
-          })
+          res.cookie('userId', user._id)
           res.redirect(process.env.CLIENT_URL);
           
         }
@@ -30,11 +26,7 @@ router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/
           newUser.save()
           .then((user) => {
             console.log('new user',user._id);
-            res.cookie('userId', user._id, { 
-              domain: '.com',
-              path: '/',
-              httpOnly: true 
-            })
+            res.cookie('userId', user._id)
             res.redirect(process.env.CLIENT_URL);
           })
           .catch(err => console.error(err));
